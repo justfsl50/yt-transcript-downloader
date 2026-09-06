@@ -20,9 +20,13 @@ function ytExtract() {
 
 // Runs IN the YouTube page. Returns [{t, text}] (seconds, plain text).
 async function ytFetchCaptions(baseUrl) {
-  const r = await fetch(baseUrl + '&fmt=json3');
+  const clean = baseUrl.replace(/[?&]fmt=[^&]*/g, '');
+  const sep = clean.includes('?') ? '&' : '?';
+  const r = await fetch(clean + sep + 'fmt=json3');
+  const txt = await r.text();
   if (!r.ok) throw new Error('captions HTTP ' + r.status);
-  const j = await r.json();
+  if (!txt.trim()) throw new Error('empty captions response — try another track');
+  const j = JSON.parse(txt);
   return (j.events || [])
     .filter(e => e.segs)
     .map(e => ({ t: (e.tStartMs || 0) / 1000, text: e.segs.map(s => s.utf8 || '').join('').replace(/\n/g, ' ').trim() }))
