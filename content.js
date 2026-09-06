@@ -122,18 +122,46 @@
     if (!data.captions.length) st('No caption tracks on this video.');
   }
 
-  let lastVid = null, tries = 0;
+  let lastVid = null, tries = 0, booted = false;
+  function toast(msg) {
+    css();
+    let t = document.getElementById('ytd-toast');
+    if (!t) {
+      t = document.createElement('div'); t.id = 'ytd-toast';
+      t.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:99999;background:#c00;color:#fff;' +
+        'padding:10px 14px;border-radius:10px;font:13px Arial;max-width:300px;box-shadow:0 4px 16px rgba(0,0,0,.5)';
+      document.body.appendChild(t);
+    }
+    t.textContent = 'YT↓ ' + msg;
+  }
+  function boot() {
+    if (booted) return; booted = true;
+    css();
+    // Collapsed button shows IMMEDIATELY: proves the content script runs.
+    if (!document.getElementById(BTN_ID)) {
+      const b = document.createElement('button'); b.id = BTN_ID; b.textContent = 'YT↓';
+      b.style.display = 'block';
+      b.onclick = () => { lastVid = null; tries = 0; init(); };
+      document.body.appendChild(b);
+    }
+  }
   async function init() {
     const v = cur();
     if (!v) return;
     if (v === lastVid && document.getElementById(PANEL_ID)) return;
+    boot();
     ensureBridge(); css();
     try {
       const data = await ask('extract');
-      if (data.error) { if (tries++ < 20) setTimeout(init, 1000); return; }
+      if (data.error) { if (tries++ < 20) setTimeout(init, 1000); else toast('No player data: ' + data.error); return; }
       tries = 0; lastVid = v; build(data);
-    } catch (e) { if (tries++ < 20) setTimeout(init, 1000); }
+      document.getElementById('ytd-toast')?.remove();
+    } catch (e) {
+      if (tries++ < 20) setTimeout(init, 1000);
+      else toast('Bridge failed: ' + e.message + ' (click YT↓ to retry)');
+    }
   }
   document.addEventListener('yt-navigate-finish', () => { lastVid = null; tries = 0; setTimeout(init, 1500); });
+  boot();
   init();
 })();
