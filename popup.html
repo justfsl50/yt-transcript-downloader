@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+body{width:320px;font-family:Segoe UI,Arial,sans-serif;padding:12px;font-size:13px}
+h3{margin:0 0 8px;font-size:15px}
+#title{font-weight:600;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row{margin:8px 0}select,button{width:100%;padding:6px;margin-top:4px}
+button{cursor:pointer}#status{color:#555;min-height:18px;margin-top:8px;font-size:12px}
+.ok{color:green}.err{color:red}
+</style></head>
+<body>
+<h3>YT Transcript + Downloader</h3>
+<div id="title">…</div>
+<div class="row"><label>Video (progressive MP4)</label><select id="vfmt"></select>
+<button id="dlv">Download Video</button></div>
+<div class="row"><label>Captions</label><select id="clang"></select>
+<button id="dltxt">Download .txt</button>
+<button id="dlsrt">Download .srt</button>
+<button id="cp">Copy Transcript</button></div>
+<div id="status"></div>
+<script src="popup.js"></script>
+</body></html>
